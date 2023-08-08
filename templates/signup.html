@@ -1,0 +1,13 @@
+{% extends "bootstrap/base.html" %}
+{% block content %}
+<div class = "container">
+    <h1>SignUp</h1>
+    <form method="post">
+        <label>username</label>
+        <input type="text" class="form-control" name="username">
+        <label>password</label>
+        <input type="password" class="form-control" name="password">
+        <input type="submit" class="btn btn-primary" value="登録">
+    </form>
+</div>
+{% endblock %}

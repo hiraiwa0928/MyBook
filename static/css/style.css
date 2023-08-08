@@ -1,0 +1,36 @@
+/* https://fonts.google.com/ */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap');
+
+body{
+  font-family: 'Playfair Display', serif;
+}
+
+.navbar{
+  z-index: 10;
+}
+
+.navbar .nav-link{
+  color: #fff !important;
+  font-size: 20px;
+}
+
+.hero {
+  min-height: 100vh;
+  height: auto;
+  background-image: url("/static/images/background.jpg");
+  background-position: center;
+  background-size: cover;
+}
+
+.blur-bg {
+  background: rgba(33, 37, 41, 0.95);
+  backdrop-filter: blur(1px);
+  border: none;
+  margin: 20px;
+}
+
+.card-text{
+  color: #fff;
+  font-size: large;
+  font-weight: bold;
+}
