@@ -34,3 +34,9 @@ body{
   font-size: large;
   font-weight: bold;
 }
+
+.card-img-top.card-img {
+  object-fit: cover;  /* 画像のアスペクト比を保持しつつ、指定のサイズにフィットさせます。 */
+  height: 450px;  /* 希望する高さに設定してください */
+  width: 100%;  /* カードの幅に合わせる */
+}

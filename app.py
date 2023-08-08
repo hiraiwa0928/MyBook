@@ -1,12 +1,13 @@
 from os import urandom
 from flask import Flask
-from flask import request, render_template, redirect
+from flask import request, render_template, redirect, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from requests import get
-from json import *
+from json import loads
+from requests import get
 
 app = Flask(__name__, static_folder="./static/")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mybook.db"
@@ -29,11 +30,6 @@ def load_user(user_id):
 @login_manager.unauthorized_handler
 def unauthorized():
     return redirect('/login')
-
-@app.route("/", methods = ["GET", "POST"])
-@login_required
-def top():
-    return render_template("index.html")
 
 @app.route("/signup", methods = ["GET", "POST"])
 def signup():
@@ -67,11 +63,36 @@ def logout():
     logout_user()
     return redirect("/login")
 
-@app.route("/search", methods=['GET', 'POST'])
+@app.route("/")
+@login_required
+def top():
+    return render_template("index.html")
+
+def searchBook(searchTerm):
+    bookInfo = []
+
+    # ISBN検索
+    url_isbn = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + searchTerm
+    getBookInfo = loads(get(url_isbn).text)
+
+    if "items" in getBookInfo:
+        for ele in getBookInfo["items"]:
+            bookInfo.append(ele)
+
+    # タイトル検索
+    url_title = "https://www.googleapis.com/books/v1/volumes?q=" + searchTerm
+    getBookInfo = loads(get(url_title).text)
+    if "items" in getBookInfo:
+        for ele in getBookInfo["items"]:
+            bookInfo.append(ele)
+
+    return bookInfo
+
+@app.route("/search", methods=['POST'])
+@login_required
 def search():
-    if request.method == "POST":
-        searchTerm = request.form.get("searchTerm")
-        print(searchTerm)
-        return render_template("search.html", searchTerm=searchTerm)
-    else:
-        pass
+    searchTerm = request.form.get("searchTerm")
+    bookInfo = searchBook(str(request.form.get("searchTerm")))
+    if len(bookInfo) == 0:
+        flash("検索した内容の本が見つかりませんでした")
+    return render_template("search.html", bookInfo=bookInfo)
