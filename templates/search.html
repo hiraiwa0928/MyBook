@@ -1,19 +1,36 @@
 {% extends "base.html" %}
 {% block head %}
-<script type="text/javascript">
-  var searchTerm = "{{ searchTerm }}";
-</script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/search.js') }}"></script>
 {% endblock %}
 {% block hero %}
-<div class="col-3">
-  <div class="card blur-bg mx-auto">
-    <div class="card-img-container p-4"> <!-- p-4でパディングを追加 -->
-      <img src="https://books.google.com/books/content?id=35BFzwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api" class="card-img-top img-fluid" alt="Book Cover">
-    </div>
-    <div class="card-body text-center">
-      <p class="card-text">本のタイトル 1</p>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul>
+    {% for message in messages %}
+        <div>{{ message }}</div>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
+<div class="row"> <!-- rowの開始 -->
+{% for ele in bookInfo %}
+  <div class="col-3">
+    <div class="card blur-bg mx-auto">
+      <div class="card-img-container p-4">
+        {% if 'imageLinks' in ele['volumeInfo']%}
+          <img src="{{ ele['volumeInfo']['imageLinks']['thumbnail'] }}" class="card-img-top img-fluid card-img" alt="Book Cover">
+        {% else %}
+          <img src="{{ url_for('static', filename='images/not_found.jpg') }}" class="card-img-top img-fluid card-img" alt="Book Cover">
+        {% endif %}
+      </div>
+      <div class="card-body text-center">
+        <p class="card-text">{{ ele['volumeInfo']['title'] }}</p>
+      </div>
     </div>
   </div>
-</div>
+  {% if (loop.index) % 4 == 0 and not loop.cycle_last %} <!-- 4つの要素ごとにrowを終了/開始 -->
+  </div>
+  <div class="row">
+  {% endif %}
+{% endfor %}
+</div> <!-- 最後のrowの終了 -->
 {% endblock %}
