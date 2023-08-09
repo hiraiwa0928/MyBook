@@ -29,14 +29,49 @@ body{
   margin: 20px;
 }
 
-.card-text{
+.book-title{
   color: #fff;
   font-size: large;
   font-weight: bold;
 }
 
-.card-img-top.card-img {
+.card-img-top {
   object-fit: cover;  /* 画像のアスペクト比を保持しつつ、指定のサイズにフィットさせます。 */
   height: 450px;  /* 希望する高さに設定してください */
   width: 100%;  /* カードの幅に合わせる */
+}
+
+.message {
+  text-align: center;
+  font-size: 2vmax;
+  color: red;
+}
+
+.message-box {
+  margin: 10px 0;
+  background-color: white;
+}
+
+#overlay {
+  display: none; /* 初期状態では非表示 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8); /* 背景を半透明黒に */
+  z-index: 1000;
+}
+
+#overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* 中央に配置 */
+  background: white;
+  max-width: 80%; /* 必要に応じて変更 */
+  max-height: 90%; /* 必要に応じて変更 */
+  overflow-y: auto; /* 内容がオーバーフローした場合にスクロールできるように */
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5); /* 影を追加 */
 }

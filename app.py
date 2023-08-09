@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from requests import get
 from json import loads
-from requests import get
+from collections import defaultdict
 
 app = Flask(__name__, static_folder="./static/")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mybook.db"
@@ -70,29 +70,51 @@ def top():
 
 def searchBook(searchTerm):
     bookInfo = []
+    apiLimitFlag = False
 
     # ISBN検索
     url_isbn = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + searchTerm
     getBookInfo = loads(get(url_isbn).text)
-
+    if ("error" in getBookInfo) and getBookInfo["error"]["code"] == 429:
+        apiLimitFlag = True
+    
     if "items" in getBookInfo:
-        for ele in getBookInfo["items"]:
-            bookInfo.append(ele)
+        for bookItems in getBookInfo["items"]:
+            bookInfo.append(defaultdict(str))
+            for key, values in bookItems.items():
+                if key == "volumeInfo":
+                    for key2, value2 in values.items():
+                        bookInfo[-1][key2] = value2
+            if ("description" not in bookInfo[-1]) or (("pageCount" in bookInfo[-1]) and bookInfo[-1]["pageCount"] == 0):
+                bookInfo.pop()
 
     # タイトル検索
     url_title = "https://www.googleapis.com/books/v1/volumes?q=" + searchTerm
     getBookInfo = loads(get(url_title).text)
-    if "items" in getBookInfo:
-        for ele in getBookInfo["items"]:
-            bookInfo.append(ele)
+    if ("error" in getBookInfo) and getBookInfo["error"]["code"] == 429:
+        apiLimitFlag = True
 
-    return bookInfo
+    if "items" in getBookInfo:
+        for bookItems in getBookInfo["items"]:
+            bookInfo.append(defaultdict(str))
+            for key, values in bookItems.items():
+                if key == "volumeInfo":
+                    for key2, value2 in values.items():
+                        bookInfo[-1][key2] = value2
+            if ("description" not in bookInfo[-1]) or (("pageCount" in bookInfo[-1]) and bookInfo[-1]["pageCount"] == 0):
+                bookInfo.pop()
+
+    return bookInfo, apiLimitFlag
 
 @app.route("/search", methods=['POST'])
 @login_required
 def search():
     searchTerm = request.form.get("searchTerm")
-    bookInfo = searchBook(str(request.form.get("searchTerm")))
-    if len(bookInfo) == 0:
+    bookInfo, apiLimitFlag = searchBook(str(request.form.get("searchTerm")))
+    if apiLimitFlag:
+        flash("API検索の利用回数が上限に達しました")
+    elif len(bookInfo) == 0:
         flash("検索した内容の本が見つかりませんでした")
+    
+    print(bookInfo)
     return render_template("search.html", bookInfo=bookInfo)
