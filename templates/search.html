@@ -1,34 +1,67 @@
 {% extends "base.html" %}
 {% block hero %}
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-    <ul>
-    {% for message in messages %}
-        <div>{{ message }}</div>
-    {% endfor %}
-    </ul>
-{% endif %}
-{% endwith %}
-<div class="row"> <!-- rowの開始 -->
-{% for ele in bookInfo %}
-  <div class="col-3">
-    <div class="card blur-bg mx-auto">
-      <div class="card-img-container p-4">
-        {% if 'imageLinks' in ele['volumeInfo']%}
-          <img src="{{ ele['volumeInfo']['imageLinks']['thumbnail'] }}" class="card-img-top img-fluid card-img" alt="Book Cover">
-        {% else %}
-          <img src="{{ url_for('static', filename='images/not_found.jpg') }}" class="card-img-top img-fluid card-img" alt="Book Cover">
-        {% endif %}
-      </div>
-      <div class="card-body text-center">
-        <p class="card-text">{{ ele['volumeInfo']['title'] }}</p>
-      </div>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="message-box">
+      <ul>
+      {% for message in messages %}
+          <div class="message">{{ message }}</div>
+      {% endfor %}
+      </ul>
     </div>
-  </div>
-  {% if (loop.index) % 4 == 0 and not loop.cycle_last %} <!-- 4つの要素ごとにrowを終了/開始 -->
-  </div>
-  <div class="row">
-  {% endif %}
-{% endfor %}
-</div> <!-- 最後のrowの終了 -->
+    {% endif %}
+  {% endwith %}
+<div id="bookInfo">
+  <div class="row"> <!-- rowの開始 -->
+    {% for ele in bookInfo %}
+      <div class="col-3">
+        <div class="book card blur-bg mx-auto">
+          <div class="card-img-container p-4">
+            {% if ele['imageLinks']['thumbnail'] is defined %}
+              <img src="{{ ele['imageLinks']['thumbnail'] }}" class="book-img card-img-top img-fluid card-img" alt="Book Cover">
+            {% else %}
+              <img src="{{ url_for('static', filename='images/not_found.jpg') }}" class="book-img card-img-top img-fluid card-img" alt="Book Cover">
+            {% endif %}
+          </div>
+          <div class="card-body text-center">
+            <p class="book-title">{{ ele['title'] }}</p>
+            <!-- 詳細表示のための非表示要素 -->
+            <p class="book-pageCount" style="display:none;">{{ ele['pageCount'] }}</p>
+            <p class="book-description" style="display:none;">{{ ele['description'] }}</p>
+            <p class="book-author" style="display:none;">{{ ele['authors'] | join(', ') }}</p>
+            <p class="book-publisher" style="display:none;">{{ ele['publisher'] }}</p>
+            <p class="book-publishedDate" style="display:none;">{{ ele['publishedDate'] }}</p>
+            <!-- ---------------------- -->
+          </div>
+        </div>
+        <!-- 本の詳細 -->
+        <div id="overlay">
+          <div id="overlay-content">
+            <!-- タイトル -->
+            <h2 id="show-book-title"></h2>
+            <!-- 画像 -->
+            <img id="show-book-img" src="" alt="">
+            <!-- 著者 -->
+            <p id="show-book-author"></p>
+            <!-- 出版社 -->
+            <p id="show-book-publisher"></p>
+            <!-- 出版日 -->
+            <p id="show-book-publishedDate"></p>
+            <!-- ページ数 -->
+            <p id="show-book-pageCount"></p>
+            <!-- 説明 -->
+            <p id="show-book-description"></p>
+            <button id="closeOverlay">閉じる</button>
+          </div>
+        </div>
+      </div>
+      {% if (loop.index) % 4 == 0 and not loop.cycle_last %} <!-- 4つの要素ごとにrowを終了/開始 -->
+        </div>
+        <div class="row">
+      {% endif %}
+    {% endfor %}
+  </div> <!-- 最後のrowの終了 -->
+</div>
+<script src="{{ url_for('static', filename='js/showDetail.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 {% endblock %}
